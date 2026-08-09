@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   GLOBALE BASIS
+   ============================================================ */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%; /* iOS: kein automatisches Text-Aufblähen */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-body antialiased;
+    /* dvh statt vh vermeidet Sprünge durch iOS-Adressleiste */
+    min-height: 100dvh;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Formulare: 16px Basis verhindert iOS-Zoom-on-focus */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+    text-wrap: balance;
+  }
+
+  /* Sichtbarer, markenkonformer Fokus-Ring für Tastatur-Navigation */
+  :focus-visible {
+    outline: 2px solid theme('colors.blue.DEFAULT');
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: theme('colors.blue.DEFAULT');
+    color: #fff;
+  }
+}
+
+/* ============================================================
+   WIEDERKEHRENDE KOMPONENTEN-KLASSEN
+   ============================================================ */
+@layer components {
+  /* Mono-Eyebrow: kleines Label über Überschriften (redaktionelle Note) */
+  .eyebrow {
+    @apply font-mono text-[0.68rem] uppercase tracking-eyebrow text-blue-deep;
+  }
+  .eyebrow--light {
+    @apply text-blue-bright;
+  }
+
+  /* Primärer Button: Blau, weiße Schrift, ≥44px Touch-Ziel */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 min-h-[48px] px-6
+           font-medium text-[0.95rem] rounded-full transition
+           duration-200 ease-soft select-none;
+    touch-action: manipulation; /* entfernt 300ms-Tap-Delay */
+  }
+  .btn-primary {
+    @apply btn bg-blue text-white hover:bg-blue-deep active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn border border-ink/25 text-ink hover:border-ink/60 hover:bg-ink/[0.03] active:scale-[0.98];
+  }
+  .btn-on-dark {
+    @apply btn bg-paper text-navy hover:bg-white active:scale-[0.98];
+  }
+
+  /* Container mit horizontalen Safe-Area-Insets für Notch/Landscape */
+  .wrap {
+    @apply mx-auto w-full max-w-content px-5 sm:px-8;
+    padding-left: max(1.25rem, env(safe-area-inset-left));
+    padding-right: max(1.25rem, env(safe-area-inset-right));
+  }
+
+  /* Feine Hairline-Trennlinie statt schwerer Ränder */
+  .hairline {
+    @apply border-t border-line;
+  }
+
+  .link-underline {
+    @apply relative text-ink/80 hover:text-ink transition-colors;
+  }
+}
+
+/* ============================================================
+   TEXTUR & DETAILS
+   ============================================================ */
+
+/* Feiner Film-Grain über der ganzen Seite (2 %) – nimmt dem Digitalen die Glätte */
+.grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Scroll-Reveal-Grundzustand: erst wenn .is-visible gesetzt wird, animiert es rein.
+   Handgemacht via IntersectionObserver – kein AOS-Fade-Slop. */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Barrierefreiheit: Bewegung reduzieren, wenn gewünscht */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
